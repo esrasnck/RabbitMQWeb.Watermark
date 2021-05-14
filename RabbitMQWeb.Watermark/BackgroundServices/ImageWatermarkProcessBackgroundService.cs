@@ -59,6 +59,7 @@ namespace RabbitMQWeb.Watermark.BackgroundServices
 
         private Task Consumer_Received(object sender, BasicDeliverEventArgs @event)
         {
+             Task.Delay(10000).Wait();
             try
             {
 
@@ -75,7 +76,7 @@ namespace RabbitMQWeb.Watermark.BackgroundServices
                 using var graphic = Graphics.FromImage(img); // grafik üzerinden bana bir imaj ver diyorum. bu imaj üzerinden artık ben resim ekleyebilirim.
 
                 // resmin sağ alt köşesine yazı yazıyoruz.
-                var font = new Font(FontFamily.GenericMonospace, 32, FontStyle.Bold, GraphicsUnit.Pixel);
+                var font = new Font(FontFamily.GenericMonospace, 40, FontStyle.Bold, GraphicsUnit.Pixel);
 
                 var textSize = graphic.MeasureString(siteName, font); // stringi ölçecez
 
@@ -87,7 +88,7 @@ namespace RabbitMQWeb.Watermark.BackgroundServices
 
                 graphic.DrawString(siteName, font, brush, position);
 
-                img.Save("wwwroot/Images/watermarks" + productimageCreatedEvent.ImageName);
+                img.Save("wwwroot/Images/watermarks/" + productimageCreatedEvent.ImageName);
 
                 img.Dispose();
                 graphic.Dispose();
@@ -95,10 +96,10 @@ namespace RabbitMQWeb.Watermark.BackgroundServices
                 _channel.BasicAck(@event.DeliveryTag, false); // eventin tagını bildir diyorum. hata fırlatıldığında kuyruktan silinmeyecek.
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                _logger.LogError(ex.Message);
             }
 
             return Task.CompletedTask;
